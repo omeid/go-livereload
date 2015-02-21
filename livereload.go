@@ -27,7 +27,7 @@ var (
 func New() *Server {
 	broadcast := make(chan interface{}, 50)
 	s := &Server{
-		Broadcast:   broadcast,
+		broadcast:   broadcast,
 		connections: make(map[*websocket.Conn]nothing),
 	}
 	go s.run(broadcast)

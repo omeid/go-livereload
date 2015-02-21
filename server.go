@@ -10,7 +10,7 @@ import (
 type nothing struct{}
 
 type Server struct {
-	Broadcast chan<- interface{}
+	broadcast chan<- interface{}
 
 	lock        sync.Mutex
 	connections map[*websocket.Conn]nothing
@@ -78,23 +78,23 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) Close() {
-	close(s.Broadcast)
+	close(s.broadcast)
 }
 
 func (s *Server) Update(url string) {
 	u := updateMessage
 	u.Url = url
-	s.Broadcast <- u
+	s.broadcast <- u
 }
 
 func (s *Server) Reload(path string) {
 	r := reloadMessage
 	r.Path = path
-	s.Broadcast <- r
+	s.broadcast <- r
 }
 
 func (s *Server) Alert(alert string) {
 	a := alertMessage
 	a.Message = alert
-	s.Broadcast <- a
+	s.broadcast <- a
 }
