@@ -2,8 +2,12 @@ package livereload
 
 import "net/http"
 
+// https://developers.google.com/speed/docs/insights/LeverageBrowserCaching
+var ScriptExpireHeader = "-1"
+
 func LivereloadScript(rw http.ResponseWriter, req *http.Request) {
 	rw.Header().Set("Content-Type", "application/javascript")
+	rw.Header().Set("Expires", ScriptExpireHeader)
 	_, err := rw.Write([]byte(Script))
 	if err != nil {
 		Log.Println(err)
