@@ -1,0 +1,84 @@
+package main
+
+import (
+	"flag"
+	"net/http"
+	"path/filepath"
+
+	"github.com/omeid/livereload"
+	"github.com/omeid/log"
+	"gopkg.in/fsnotify.v1"
+)
+
+var (
+	livereloadAddr= flag.String("livereload", ":35729", "liverloead servera addr.")
+	serverAddr= flag.String("server", ":8082", "static server addr. Requires -serve ")
+	serve= flag.String("serve", "", "static files folders.")
+	strip = flag.String("strip", "", "path to strip from static files.")
+)
+
+func main() {
+	flag.Parse()
+	log := log.New("[livereload]")
+
+	globs := flag.Args()
+	if len(globs) == 0 {
+		log.Fatalf("No Files To Watch.")
+	}
+
+	var files []string
+
+	for _, glob := range globs {
+
+		matches, err := filepath.Glob(glob)
+		if err != nil {
+			log.Fatal(err)
+		}
+		files = append(files, matches...)
+	}
+
+	if len(files) == 0 {
+		log.Fatalf("No Files Matched The Globs.")
+	}
+
+	watch, err := fsnotify.NewWatcher()
+	if err != nil {
+		log.Error(err)
+	}
+	defer watch.Close()
+
+	for _, file := range files {
+		err = watch.Add(file)
+		if err != nil {
+			log.Error(err)
+			return
+		}
+	}
+
+	if *serve != "" {
+	  go func() {
+		static := http.StripPrefix(*strip, http.FileServer(http.Dir(*serve)))
+		log.Fatal(http.ListenAndServe(*serverAddr,static))
+	  }()
+	}
+	lr := livereload.New()
+	go func() {
+	  mux := http.NewServeMux()
+	  mux.HandleFunc("/livereload.js", livereload.LivereloadScript)
+	  mux.Handle("/", lr)
+		log.Fatal(http.ListenAndServe(*livereloadAddr, mux))
+	}()
+
+	for {
+		select {
+		case event := <-watch.Events:
+			if event.Op&(fsnotify.Rename|fsnotify.Create|fsnotify.Write) > 0 {
+				lr.Reload(event.Name)
+			}
+		case err := <-watch.Errors:
+			if err != nil {
+				log.Error(err)
+			}
+		}
+	}
+}
