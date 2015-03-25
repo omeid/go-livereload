@@ -11,15 +11,15 @@ import (
 )
 
 var (
-	livereloadAddr= flag.String("livereload", ":35729", "liverloead servera addr.")
-	serverAddr= flag.String("server", ":8082", "static server addr. Requires -serve ")
-	serve= flag.String("serve", "", "static files folders.")
-	strip = flag.String("strip", "", "path to strip from static files.")
+	livereloadAddr = flag.String("livereload", ":35729", "liverloead servera addr.")
+	serverAddr     = flag.String("server", ":8082", "static server addr. Requires -serve ")
+	serve          = flag.String("serve", "", "static files folders.")
+	strip          = flag.String("strip", "", "path to strip from static files.")
 )
 
 func main() {
 	flag.Parse()
-	log := log.New("[livereload]")
+	log := log.New("livereload ")
 
 	globs := flag.Args()
 	if len(globs) == 0 {
@@ -56,16 +56,18 @@ func main() {
 	}
 
 	if *serve != "" {
-	  go func() {
-		static := http.StripPrefix(*strip, http.FileServer(http.Dir(*serve)))
-		log.Fatal(http.ListenAndServe(*serverAddr,static))
-	  }()
+		go func() {
+			static := http.StripPrefix(*strip, http.FileServer(http.Dir(*serve)))
+			log.Infof("Serving '%s' at %s", *serve, *serverAddr)
+			log.Fatal(http.ListenAndServe(*serverAddr, static))
+		}()
 	}
 	lr := livereload.New()
 	go func() {
-	  mux := http.NewServeMux()
-	  mux.HandleFunc("/livereload.js", livereload.LivereloadScript)
-	  mux.Handle("/", lr)
+		mux := http.NewServeMux()
+		mux.HandleFunc("/livereload.js", livereload.LivereloadScript)
+		mux.Handle("/", lr)
+		log.Infof("Serving livereload at %s", *livereloadAddr)
 		log.Fatal(http.ListenAndServe(*livereloadAddr, mux))
 	}()
 
@@ -73,7 +75,8 @@ func main() {
 		select {
 		case event := <-watch.Events:
 			if event.Op&(fsnotify.Rename|fsnotify.Create|fsnotify.Write) > 0 {
-				lr.Reload(event.Name)
+			  log.Infof("Reloading %s", event.Name)
+				lr.Reload(event.Name, true)
 			}
 		case err := <-watch.Errors:
 			if err != nil {

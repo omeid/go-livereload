@@ -90,11 +90,11 @@ func (s *Server) Update(url string) {
 	}
 }
 
-func (s *Server) Reload(path string) {
+func (s *Server) Reload(path string, cssLivereload bool) {
 	s.broadcast <- reloadMessage{
 		message{"reload"},
 		path,
-		true,
+		cssLivereload,	
 	}
 }
 
