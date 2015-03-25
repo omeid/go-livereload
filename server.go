@@ -12,6 +12,7 @@ type nothing struct{}
 type Server struct {
 	broadcast chan<- interface{}
 
+	name        string
 	lock        sync.Mutex
 	connections map[*websocket.Conn]nothing
 }
@@ -45,8 +46,6 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
-var sHello = serverHello{message{"hello"}, protos, host}
-
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Error(w, "Method not allowed", 405)
@@ -67,7 +66,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//TODO: Check protos compat.
-	err = conn.WriteJSON(&sHello)
+
+	err = conn.WriteJSON(serverHello{message{"hello"}, protos, s.name})
 	if err != nil {
 		Log.Println(err)
 		conn.Close()
@@ -94,7 +94,7 @@ func (s *Server) Reload(path string, cssLivereload bool) {
 	s.broadcast <- reloadMessage{
 		message{"reload"},
 		path,
-		cssLivereload,	
+		cssLivereload,
 	}
 }
 

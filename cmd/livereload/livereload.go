@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"github.com/omeid/livereload"
+	"github.com/omeid/go-livereload"
 	"github.com/omeid/log"
 	"gopkg.in/fsnotify.v1"
 )
@@ -62,7 +62,7 @@ func main() {
 			log.Fatal(http.ListenAndServe(*serverAddr, static))
 		}()
 	}
-	lr := livereload.New()
+	lr := livereload.New("go-livereload")
 	go func() {
 		mux := http.NewServeMux()
 		mux.HandleFunc("/livereload.js", livereload.LivereloadScript)
