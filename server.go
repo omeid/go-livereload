@@ -42,8 +42,10 @@ func (s *Server) run(broadcast <-chan interface{}) {
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
-	CheckOrigin: func(r *http.Request) bool { return true },
+	CheckOrigin:     func(r *http.Request) bool { return true },
 }
+
+var sHello = serverHello{message{"hello"}, protos, host}
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
@@ -57,15 +59,15 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hello := helloMessage
-	err = conn.ReadJSON(&hello)
+	chello := helloMessage{}
+	err = conn.ReadJSON(&chello)
 	if err != nil {
 		Log.Println(err)
 		conn.Close()
 		return
 	}
 	//TODO: Check protos compat.
-	err = conn.WriteJSON(&serverHello)
+	err = conn.WriteJSON(&sHello)
 	if err != nil {
 		Log.Println(err)
 		conn.Close()
@@ -82,19 +84,23 @@ func (s *Server) Close() {
 }
 
 func (s *Server) Update(url string) {
-	u := updateMessage
-	u.Url = url
-	s.broadcast <- u
+	s.broadcast <- updateMessage{
+		message{"update"},
+		url,
+	}
 }
 
 func (s *Server) Reload(path string) {
-	r := reloadMessage
-	r.Path = path
-	s.broadcast <- r
+	s.broadcast <- reloadMessage{
+		message{"reload"},
+		path,
+		true,
+	}
 }
 
 func (s *Server) Alert(alert string) {
-	a := alertMessage
-	a.Message = alert
-	s.broadcast <- a
+	s.broadcast <- alertMessage{
+		message{"alert"},
+		alert,
+	}
 }
