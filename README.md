@@ -22,5 +22,7 @@ $ livereload --help
 
 
 
+### LICENSE
+  [MIT](LICENSE).
 
 [slurp-contrib/livereload](https://github.com/slurp-contrib/livereload/) for Slurp bindings.
