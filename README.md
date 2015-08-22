@@ -9,6 +9,12 @@ Go implementation of [livereload](http://livereload.com/) and a server.
 
 ## livereload (cmd/livereload)
 
+
+### Install
+
+```
+go install github.com/omeid/go-livereload/cmd/livereload
+```
 ### Usage
 
 ```sh 
