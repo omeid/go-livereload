@@ -1,19 +1,19 @@
 package livereload
 
 type (
-  message struct {
-	Command string `json:"command"`
-}
+	message struct {
+		Command string `json:"command"`
+	}
 
-updateMessage struct {
+	updateMessage struct {
 		message
 		Url string
-	  }
+	}
 	reloadMessage struct {
 		message
 		Path    string `json:"path"`
-		LiveCSS bool `json:"liveCSS"`
-	  }
+		LiveCSS bool   `json:"liveCSS"`
+	}
 
 	alertMessage struct {
 		message
