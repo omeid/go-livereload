@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"path/filepath"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/omeid/go-livereload"
 	"github.com/omeid/log"
-	"gopkg.in/fsnotify.v1"
 )
 
 var (
@@ -75,7 +75,7 @@ func main() {
 		select {
 		case event := <-watch.Events:
 			if event.Op&(fsnotify.Rename|fsnotify.Create|fsnotify.Write) > 0 {
-			  log.Infof("Reloading %s", event.Name)
+				log.Infof("Reloading %s", event.Name)
 				lr.Reload(event.Name, true)
 			}
 		case err := <-watch.Errors:
