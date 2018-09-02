@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	livereloadAddr = flag.String("livereload", ":35729", "liverloead servera addr.")
+	livereloadAddr = flag.String("livereload", ":35729", "livereload servera addr.")
 	serverAddr     = flag.String("server", ":8082", "static server addr. Requires -serve ")
 	serve          = flag.String("serve", "", "static files folders.")
 	strip          = flag.String("strip", "", "path to strip from static files.")
