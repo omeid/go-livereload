@@ -13,7 +13,7 @@ Go implementation of [livereload](http://livereload.com/) and a server.
 ### Install
 
 ```
-go install github.com/omeid/go-livereload/cmd/livereload
+go install -i github.com/omeid/go-livereload/cmd/livereload
 ```
 ### Usage
 
