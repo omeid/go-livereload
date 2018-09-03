@@ -13,14 +13,14 @@ Go implementation of [livereload](http://livereload.com/) and a server.
 ### Install
 
 ```
-go install github.com/omeid/go-livereload/cmd/livereload
+go install -i github.com/omeid/go-livereload/cmd/livereload
 ```
 ### Usage
 
 ```sh 
 $ livereload --help
   Usage of livereload:
-  -livereload=":35729": liverloead servera addr.
+  -livereload=":35729": livereload servera addr.
   -serve="": static files folders.
   -server=":8082": static server addr. Requires -serve 
   -strip="": path to strip from static files.
